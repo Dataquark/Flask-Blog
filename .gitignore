@@ -1,0 +1,7 @@
+# Virtual environment and vscode, jupyter files
+venv/*
+.vscode/*
+__pycache__/*
+
+# local files
+config.py
