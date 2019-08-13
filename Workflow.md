@@ -166,3 +166,14 @@ Flow of database changes:
     25.1 Do _flask db migrate -m "post table"_
     25.2 Do _flask db upgrade_
     25.3 Push to Github.
+
+26. Inside _microblog.py_ import db. Also, import User, Post from app.models
+    26.1 Function will be created using *@app.shell_context_processor* decorator
+    26.2 Function is *make_shell_context*
+    26.3 It wil return a dictionary {'db':db, 'User':User, 'Post':Post}
+
+    _Note_
+    This is done to manage _Flask shell_ command in the terminal. We can use this command to launch flask app as a playground and test if the models we designed are working properly by creating sessions, adding users, posts to tables and returning them.
+    **Important!** Do not forget to delete the session and all the added users before exiting shell!
+    More info is here: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database
+    
