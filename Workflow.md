@@ -132,3 +132,37 @@
     22.1 Before we _upgrade_ the database, we will create a git repository and push it to github for version control
     22.2 _git add ._ then _git commit -m "useful message"_
     22.3 _git config user.name ""_ then _git config user.email ""_ give the long email from Github
+    22.4 Create a new repository on Github and copy SSH url
+    22.5 Do _git remote add origin url_ to connect local repo to Github
+    22.6 Do _git remote -v_ to check if all is fine
+    22.7 Do _git push origin master_
+
+23. Do _flask db upgrade_ 
+
+**IMPORTANT**
+Flow of database changes:
+    1. change the model (add new tables, remove, change the schema and so on)
+    2. _flask db migrate -m "comments"_ to create a new migration script
+    3. Review the changes to make sure _migrate_ did the right things
+    4. _flask db upgrade_ to apply the new changes in the script to development db
+    5. git add, commit, push to branch, review the changes then merge
+    6. When you are ready to release the new version of the application to your production server, all you need to do is grab the updated version of your application, which will include the new migration script, and run _flask db upgrade_. Alembic will detect that the production database is not updated to the latest revision of the schema, and run all the new migration scripts that were created after the previous release.
+    7. We also have a _flask db downgrade_ command, which undoes the last migration. We may have generated a migration script and applied it, only to find that the changes that we made are not exactly what we need. In this case, we can downgrade the database, delete the migration script, and then generate a new one to replace it.
+**READ THIS SECTION**
+
+24. Create **Post** class that will inherit from **db.Model**
+    24.1 Create _id_ object instantiated from db.Column class. Type Integer, primary key true.
+    24.2 Create _body_ object instantiated from db.Column class. Type String(140).
+    24.3 Create _timestamp_ object instantiated from db.Column class. Type DateTime, index true, default=datetime.utcnow
+    24.4 Create _user_id_ object instantiated from db.Column class. Type Integer, db.ForeignKey("user.id")
+        24.4.1 Note this "user" is reference to **User** class and its id column. It is unfortunate that db.Model accepts only
+               lower case arguments.
+    24.5 Create __repr__ function to return the body when asked
+
+    24.6 Inside **User** class add _posts_ object instantiated from _db.relationship_
+        24.6.1 Arguments for relationship are _"Post"_ - reference to class, _backref_ - will add a _post.author_ expression that will return the user if given a particular post, _lazy_ - defines how the database query for the relationship will be issued. More info on _lazy_ is here: https://flask-sqlalchemy.palletsprojects.com/en/2.x/models/
+
+25. We will create a migration script for the new table (Post) and upgrade it. Repeat step 21.
+    25.1 Do _flask db migrate -m "post table"_
+    25.2 Do _flask db upgrade_
+    25.3 Push to Github.
