@@ -23,7 +23,7 @@
     7.2 Create "Config" class
     7.2 Put "SECRET_KEY" as a class variable. Use "OR" constructor with os.environment.get('SECRET_KEY') function
 8. Import the "Config" class to __init__.py module
-    8.1 "set app.config.from_object(Config)" after the "app" instance
+    8.1 set "app.config.from_object(Config)" after the "app" instance
 
 -------------------------------------------------------------------
 9. Create forms.py module
@@ -49,7 +49,7 @@
         
            {{form.remember_me()}}                                                                                    {                         {{form.remember_me.label}}
 
-        11.2.3 sumbit will not have label form
+        11.2.3 submit will not have label form
 
     11.3 It will also have a {{form.hidden_tag()}} on top of paragraphs right after <form>
 
@@ -102,7 +102,7 @@
     18.1 Import SQLalchemy from flask_sqlalchemy
     18.2 Import Migrate from flask_migrate
 
-    18.3 Instantiate db, migrate objects from those two classes
+    18.3 Instantiate "db, migrate" objects from those two classes
         18.3.1 db object will have (app) as an argument
         18.3.2 migrate object will have (app, db) as arguments
 
@@ -154,7 +154,7 @@ Flow of database changes:
     24.1 Create _id_ object instantiated from db.Column class. Type Integer, primary key true.
     24.2 Create _body_ object instantiated from db.Column class. Type String(140).
     24.3 Create _timestamp_ object instantiated from db.Column class. Type DateTime, index true, default=datetime.utcnow
-    24.4 Create _user_id_ object instantiated from db.Column class. Type Integer, db.ForeignKey("user.id")
+    24.4 Create *user_id* object instantiated from db.Column class. Type Integer, db.ForeignKey("user.id")
         24.4.1 Note this "user" is reference to **User** class and its id column. It is unfortunate that db.Model accepts only
                lower case arguments.
     24.5 Create __repr__ function to return the body when asked
@@ -176,4 +176,23 @@ Flow of database changes:
     This is done to manage _Flask shell_ command in the terminal. We can use this command to launch flask app as a playground and test if the models we designed are working properly by creating sessions, adding users, posts to tables and returning them.
     **Important!** Do not forget to delete the session and all the added users before exiting shell!
     More info is here: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database
-    
+
+ -------------------------------------------------------------------   
+ 27. Import *generate_password_hash, check_password_hash* from _werkzeug.security_ in **models.py**
+    27.1 Inside _Users_ class, create two new methods: *set_password* and *check_password*
+    27.2 First method has _self, password_ arguments and creates a variable named `self.password_hash` using the _generate..._ function
+        27.2.1 It does not return anything
+    27.3 Second method returns *check_password_hash(self.password_hash, password)*
+
+28. Do _pip install flask-login_
+    28.1 Inside _init.py_ import **LoginManager** from *flask_login*
+    28.2 Right after `app, db, migrate`, create a `login` variable as an instance of _LoginManager_
+
+29. Inside _models.py_ import _UserMixin_ from *flask_login*
+    29.1 Add this **UserMixin** as class argument into _User_ class
+    29.2 More info on what UserMixin actuall is here: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-v-user-logins
+
+30. In the _models.py_ import *login* from *app*
+    30.1 After User, Post classes, create a function *load_user(id)*
+    30.2 This function will have a decorator above it, **@login.user_loader**
+    30.3 Function itself will return *User.query.get(int(id))*
