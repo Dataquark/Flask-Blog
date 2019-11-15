@@ -47,7 +47,8 @@
 
         11.2.2 remember_me and submit will be called as a function (with brackets): 
         
-           {{form.remember_me()}}                                                                                    {                         {{form.remember_me.label}}
+           {{form.remember_me()}}
+           {{form.remember_me.label}}
 
         11.2.3 submit will not have label form
 
@@ -196,3 +197,24 @@ Flow of database changes:
     30.1 After User, Post classes, create a function *load_user(id)*
     30.2 This function will have a decorator above it, **@login.user_loader**
     30.3 Function itself will return *User.query.get(int(id))*
+
+31. In the _routes.py_ import **User** from `app.models`, and *current_user, login_user, logout_user* from `flask_login`
+
+32. Change the `login` function
+    32.1 If the user is already logged in and tries to go to login page by mistake, redirect them to the main page
+        32.1.1 We can accomplish it by using *if current_user.is_authenticated: redirect(url_for('index'))*
+    32.2 Inside `form.validate_on_submit()`, do the following:
+        32.2.1 Query the user from **User** and save it into variable `user`
+        32.2.2 If this user does not exist or his/her password hash does not match (use `user.check_password` function),
+                then flash an error message, stating that username or password is incorrect
+                *AND* redirect the session back to the _login_ page
+        32.2.3 Else (if user exists and password is correct), then `login_user(username=user, remember=form.remember_me.data)`
+        32.2.4 Redirect to the main page
+
+33. Add `logout` function
+    33.1 Log the user out and redirect to the main page
+
+34. Inside the _base.html_, in the `header of the page`
+    34.1 Add *if statements* using jinja templates
+    34.2 If current user is anonymous, then he/she will see `Login` url
+    34.3 If not, he/she will see `Logout` url

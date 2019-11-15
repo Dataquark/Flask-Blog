@@ -18,7 +18,12 @@
     <div>
         Microblog:
         <a href="{{ url_for('index') }}">Main page</a>
+        <!--Swich the login bar to logout, if the user is authenticated. Step 34-->
+        {% if current_user.is_anonymous %}
         <a href="{{ url_for('login') }}">Login page</a>
+        {% else %}
+        <a href="{{url_for('logout')}}">Logout</a>
+        {% endif %}
     </div>
     <hr>
 
