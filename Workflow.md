@@ -218,3 +218,27 @@ Flow of database changes:
     34.1 Add *if statements* using jinja templates
     34.2 If current user is anonymous, then he/she will see `Login` url
     34.3 If not, he/she will see `Logout` url
+ ------------------------------------------------------------------- 
+35. Inside __init.py__ create after _login = LoginManager(app)_
+    35.1 create `login.login_view = 'login'`
+    35.1 The 'login' value above is the function (or endpoint) name for the login view. 
+           In other words, the name we would use in a `url_for()` call to get the URL.
+    
+36. Inside `login` view, after *login_user* is done
+    36.1 Obtain the `next_page` variable from `request.args.get('next')`
+    36.2 You need to import _request_ from **flask** and *url_parse* from **werkzeug.urls**
+    36.3 Create and _if_ statement after
+        36.3.1 Check if *next_page* is not empty or its *netloc* component is not empty
+        36.3.2 If any one of them is true, set the url for *next_page* to `index` view
+        36.3.3 Otherwise, it will remain the url you got before from `reqeust.args.get('next')`
+        36.3.4 More on **netloc** is here: https://stackoverflow.com/questions/53992694/what-does-netloc-mean
+
+37. Protect your `index` view with **login_required** decorator after _@app.route_
+    37.1 You need to import *login_required* from **flask_login**
+
+38. Now, as login functionality is created, inside _index.html_
+    38.1 change the `user` to `current_user` in <h1> tag, as we can utilize flask_login functionality
+
+39. Inside _routes.py_ remove `user=user` from *render_template* of `index` view
+    39.1 We do not need to provide a user anymore
+------------------------------------------------------------------- 
