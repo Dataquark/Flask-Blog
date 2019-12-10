@@ -242,3 +242,27 @@ Flow of database changes:
 39. Inside _routes.py_ remove `user=user` from *render_template* of `index` view
     39.1 We do not need to provide a user anymore
 ------------------------------------------------------------------- 
+40. Inside **forms.py** create `RegistrationForm` _class_
+    40.1 add _ValidationError, Email, EqualTo_ to *wtforms.validators* import
+    40.2 from _app.models_ import `User`
+    40.3 Create the class
+        40.3.1 It will have five fields `username, email, password, password2, submit`
+            40.3.1.1 Each will use `fields` from _wtforms_ and have appropriate _validators_
+            40.3.1.2 You can check the **LoginForm** class for details, as they are similar
+            40.3.1.3 `password2` is to make sure the user typed the password twice, hence *EqualTo* is used
+    
+    40.4 This class will have two additional _custom validators_
+        40.4.1 `validate_username(self, username)`, which will check if the user already exists
+                and if so, will raise and exception using *ValidationError*
+        40.4.2 `validate_email(self, email)`, which will check if the email is unique, and if not,
+                it will raise a similar error
+
+41. Create *register.html* inside __templates__ folder
+    41.1 Put a form for `Registration` similar to _login.html_
+    41.2 It will extend the `base.html` and be practically the same
+
+42. Inside _routes.py_ create a view for `Registration` with `register` function
+    42.1 Import *RegistrationForm* and add after *LoginForm* in the imports
+    42.2 from _app.models_ import **User**, which will be queried inside the `register` view
+    42.3 The `register` function itself will be almost identical to `login` view, with minor differences
+-------------------------------------------------------------------
