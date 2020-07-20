@@ -1,7 +1,11 @@
+# Workflow
+
 1. Create a directory
 2. Make a virtual environment
-3. Install libraries (flask, python-dotenv, flask-wft...)
--------------------------------------------------------------------
+3. Install libraries ( flask, python-dotenv, flask-wft... )
+
+_______
+
 4. Create "App" folder
     4.1 Create __init__.py inside "App" folder
         4.1.1 Import, instantiate Flask object (__name__ inside of it), import routes from app
@@ -11,7 +15,9 @@
     4.3 Create "Templates" folder inside
         4.3.1 Create "index.html" and "base.html"
         4.3.2 Index (and any further html files) will inherit from the Base using Jinja templates using {% block content %}{% endblock%}
--------------------------------------------------------------------
+
+_______
+
 5. Create "microblog.py" (top level app) on the top level directory
     5.1 Import the app inside
 
@@ -20,12 +26,15 @@
 
 7. Create "config.py" file for configuration files
     7.1 Import os
+        7.1.1 basedir = os.path.abspath(os.path.dirname(__file__))
     7.2 Create "Config" class
     7.2 Put "SECRET_KEY" as a class variable. Use "OR" constructor with os.environment.get('SECRET_KEY') function
+    
 8. Import the "Config" class to __init__.py module
     8.1 set "app.config.from_object(Config)" after the "app" instance
 
--------------------------------------------------------------------
+_______
+
 9. Create forms.py module
     9.1 Import FlaskForm from flask_wtf
     9.2 Import String, Boolean, Submit, Password fields from wtforms
@@ -45,8 +54,8 @@
             {{form.username.label}} <br> <- this is a breakline
             {{form.username(size=32)}}
 
-        11.2.2 remember_me and submit will be called as a function (with brackets): 
-        
+        11.2.2 remember_me and submit will be called as a function (with brackets):
+
            {{form.remember_me()}}
            {{form.remember_me.label}}
 
@@ -57,7 +66,9 @@
     11.4 Form will have <form action="" method="post" novalidate>
         11.4.1 action="" means that all the data submitted will be reflected in url
         11.4.2 The novalidate attribute is used to tell the web browser to not apply validation to the fields in this form, which effectively leaves this task to the Flask application running in the server. Using it is optional, but for this first form it is important that we set it because this will allow us to test server-side validation later.
--------------------------------------------------------------------
+
+_______
+
 12. Inside _routes.py_
     12.1 Import flash, redirect functions from flask
 
@@ -91,7 +102,9 @@
 
     15.2 In the _base.html_ update the header <div> with url_for as well.
         15.2.1 Note, that url for will be inside "", like "{{url_for('index')}}"
--------------------------------------------------------------------
+
+_______
+
 16. pip3 install flask-sqlalchemy flask-migrate
 
 17. Inside _config.py_
@@ -138,7 +151,7 @@
     22.6 Do _git remote -v_ to check if all is fine
     22.7 Do _git push origin master_
 
-23. Do _flask db upgrade_ 
+23. Do _flask db upgrade_
 
 **IMPORTANT**
 Flow of database changes:
@@ -178,7 +191,8 @@ Flow of database changes:
     **Important!** Do not forget to delete the session and all the added users before exiting shell!
     More info is here: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database
 
- -------------------------------------------------------------------   
+ _______
+
  27. Import *generate_password_hash, check_password_hash* from _werkzeug.security_ in **models.py**
     27.1 Inside _Users_ class, create two new methods: *set_password* and *check_password*
     27.2 First method has _self, password_ arguments and creates a variable named `self.password_hash` using the _generate..._ function
@@ -218,12 +232,14 @@ Flow of database changes:
     34.1 Add *if statements* using jinja templates
     34.2 If current user is anonymous, then he/she will see `Login` url
     34.3 If not, he/she will see `Logout` url
- ------------------------------------------------------------------- 
+
+ _______
+
 35. Inside __init.py__ create after _login = LoginManager(app)_
     35.1 create `login.login_view = 'login'`
-    35.1 The 'login' value above is the function (or endpoint) name for the login view. 
+    35.1 The 'login' value above is the function (or endpoint) name for the login view.
            In other words, the name we would use in a `url_for()` call to get the URL.
-    
+
 36. Inside `login` view, after *login_user* is done
     36.1 Obtain the `next_page` variable from `request.args.get('next')`
     36.2 You need to import _request_ from **flask** and *url_parse* from **werkzeug.urls**
@@ -241,7 +257,9 @@ Flow of database changes:
 
 39. Inside _routes.py_ remove `user=user` from *render_template* of `index` view
     39.1 We do not need to provide a user anymore
-------------------------------------------------------------------- 
+
+_______
+
 40. Inside **forms.py** create `RegistrationForm` _class_
     40.1 add _ValidationError, Email, EqualTo_ to *wtforms.validators* import
     40.2 from _app.models_ import `User`
@@ -250,7 +268,7 @@ Flow of database changes:
             40.3.1.1 Each will use `fields` from _wtforms_ and have appropriate _validators_
             40.3.1.2 You can check the **LoginForm** class for details, as they are similar
             40.3.1.3 `password2` is to make sure the user typed the password twice, hence *EqualTo* is used
-    
+
     40.4 This class will have two additional _custom validators_
         40.4.1 `validate_username(self, username)`, which will check if the user already exists
                 and if so, will raise and exception using *ValidationError*
@@ -265,4 +283,5 @@ Flow of database changes:
     42.1 Import *RegistrationForm* and add after *LoginForm* in the imports
     42.2 from _app.models_ import **User**, which will be queried inside the `register` view
     42.3 The `register` function itself will be almost identical to `login` view, with minor differences
--------------------------------------------------------------------
+
+_______
