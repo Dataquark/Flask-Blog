@@ -285,3 +285,19 @@ _______
     42.3 The `register` function itself will be almost identical to `login` view, with minor differences
 
 _______
+
+43. Inside _routes.py_ create a new view function, `user` which will be his/her **Profile page**
+    43.1 `login_required` is needed
+    43.2 This function will have dynamic url, which is that `<username>` in the string
+        43.2.1 We can pass it as a query argument to retrieve the user
+        43.2.2 *first_or_404()* is a method which gives 404 error if there is no user with that username
+    43.3 It will also have list of fake posts
+    43.4 We will render a new template with user and posts
+
+44. Create a new _user.html_ file which extends _base.html_
+    44.1 Very simple header1 with the username
+    44.2 Loop through the posts and show them
+
+45. Inside _base.html_ add a link to **Profile**
+    45.1 We will write it inside the `else` clause, because it should be shown only if the user is logged in
+    45.2 Because Profile will appear only for logged in users, we can use `current_user.username` inside *url_for*
