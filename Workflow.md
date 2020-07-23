@@ -301,3 +301,13 @@ _______
 45. Inside _base.html_ add a link to **Profile**
     45.1 We will write it inside the `else` clause, because it should be shown only if the user is logged in
     45.2 Because Profile will appear only for logged in users, we can use `current_user.username` inside *url_for*
+
+________
+
+46. **Gravatar**. Inside the _models.py_ add `avatar` function to **User** class
+    46.1 It will transform the user's email to `md5 hash`
+    46.2 We will return an Gravatar link with the hash and identicon, in case email does not exist in Gravatar
+
+47. Inside _user.html_ change the header
+    47.1 Wrap the header within a <table>, which has <tr> consisting of <td>s
+    47.2 To add the gravatar to individual posts, you also wrap the posts inside <table>, <tr>, <td>

@@ -2,14 +2,35 @@
 
 {% block content %}
 
-<h1>User: {{ user.username }}</h1>
+<table>
+    <!--Table row-->
+    <tr valign="top">
+        <td>
+            <!--Data container-->
+            <img src="{{user.avatar(128)}}" alt="Gravatar">
+        </td>
+        <td>
+            <h1>User: {{ user.username }}</h1>
+        </td>
+    </tr>
+</table>
+
 <hr>
 
 {% for post in posts %}
 
-<p>
-    {{post.author.username}} says: <b>{{post.body}}</b>
-</p>
+<table>
+    <tr>
+        <td>
+            <img src="{{user.avatar(36)}}" alt="Gravatar">
+        </td>
+        <td>
+            {{post.author.username}} says: <br>{{post.body}}
+        </td>
+    </tr>
+
+</table>
+
 
 {% endfor %}
 

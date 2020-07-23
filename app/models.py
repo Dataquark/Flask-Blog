@@ -1,6 +1,7 @@
 from app import db  # db is in __init__.py
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from hashlib import md5
 from flask_login import UserMixin  # step 29 in Workflow
 from app import login
 
@@ -22,6 +23,10 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
+        return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
 
 
 class Post(db.Model):
