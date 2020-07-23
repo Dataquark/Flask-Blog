@@ -325,3 +325,16 @@ ________
     50.1 We do _flask db migrate -m "comment"_ to migrate
     50.2 Then _flask db upgrade_ to apply the changes to our `app.db`
     50.3 Any users that were in the database are still there, the migration framework surgically applies the changes in the migration script without destroying any data.
+
+51. In the _user.html_ we add two conditionals for `about_me` and `last_seen` views
+    51.1 Because we only want them to be visible if they are set. 
+    51.2 At this point these two new fields are empty for all users
+
+________
+
+52. In the _routes.py_ file, we add a new `before_request` function
+    52.1 It will have an `@app.before_request` decorator
+    52.2 This decorator from Flask register the decorated function to be executed right before the view function.
+         This is extremely useful because now I can insert code that I want to execute before any view function in the application, and I can have it in a single place.
+    52.3 Why there is no db.session.add() before the commit, consider that when you reference current_user, Flask-Login 
+         will invoke the user loader callback function, which will run a database query that will put the target user in the database session. So you can add the user again in this function, but it is not necessary because it is already there.

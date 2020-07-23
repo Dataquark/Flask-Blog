@@ -12,6 +12,19 @@
         </td>
         <td>
             <h1>User: {{ user.username }}</h1>
+
+            <!--Step 51 in the Workflow-->
+            {% if user.about_me %}
+            <p>
+                {{ user.about_me}}
+            </p>
+            {% endif %}
+
+            {% if user.last_seen %}
+            <p>
+                Last seen on: {{user.last_seen}}
+            </p>
+            {% endif %}
         </td>
     </tr>
 </table>
