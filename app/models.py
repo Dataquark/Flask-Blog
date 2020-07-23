@@ -1,8 +1,10 @@
-from app import db  # db is in __init__.py
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
+
 from flask_login import UserMixin  # step 29 in Workflow
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import db  # db is in __init__.py
 from app import login
 
 

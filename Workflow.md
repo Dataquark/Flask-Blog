@@ -338,3 +338,23 @@ ________
          This is extremely useful because now I can insert code that I want to execute before any view function in the application, and I can have it in a single place.
     52.3 Why there is no db.session.add() before the commit, consider that when you reference current_user, Flask-Login 
          will invoke the user loader callback function, which will run a database query that will put the target user in the database session. So you can add the user again in this function, but it is not necessary because it is already there.
+________
+
+53. in the _routes.py_ we create a new view function `edit_profile`
+    53.1 It will use the `EditFormProfile` class from _forms.py_
+        53.1.1 This class has three fields to be shown on the webpage, _username, about-me, submit_
+    53.2 If validate_on_submit() returns **True** I copy the data from the form into the user object and then write the  
+         object to the database.
+    53.3 In case it is **False**, it might be either because we get an initial `GET` request 
+         when the page is loaded for the first time, or `POST` but with some validation error
+         53.3.1 In case of initial `GET`, we need a reverse operation, **set the form data from current_user data**, 
+                instead of setting the current_user from the form data. 
+                Because in the initial load, there will not be anything submitted by the user.
+                We check it by `request.method == "GET" `
+         53.3.2 In case we receive `POST` but with some validation errors, we do not want to write anything to the form 
+                fields, because those were already populated by WTForms.
+                That is why we do not have `else` clause - we just skip the `POST` with validation errors
+    53.3 We add a link to _Edit profile_ in the user template
+        53.3.1 Pay attention to the clever conditional to make sure that the Edit link appears when you are viewing your 
+               own profile, but not when you are viewing the profile of someone else
+               
