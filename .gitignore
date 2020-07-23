@@ -6,5 +6,8 @@ app/__pycache__/*
 migrations/__pycache__/*
 migrations/__pycache__
 
+# Ignore all pycache recursively
+**/__pycache__
+
 # local files
 config.py
