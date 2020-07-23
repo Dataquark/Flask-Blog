@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<!--Step 47 in the workflow-->
 <table>
     <!--Table row-->
     <tr valign="top">
@@ -19,18 +20,8 @@
 
 {% for post in posts %}
 
-<table>
-    <tr>
-        <td>
-            <img src="{{user.avatar(36)}}" alt="Gravatar">
-        </td>
-        <td>
-            {{post.author.username}} says: <br>{{post.body}}
-        </td>
-    </tr>
-
-</table>
-
+<!--Step 48 in the Workflow-->
+{% include "_posts.html" %}
 
 {% endfor %}
 

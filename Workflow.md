@@ -29,7 +29,7 @@ _______
         7.1.1 basedir = os.path.abspath(os.path.dirname(__file__))
     7.2 Create "Config" class
     7.2 Put "SECRET_KEY" as a class variable. Use "OR" constructor with os.environment.get('SECRET_KEY') function
-    
+
 8. Import the "Config" class to __init__.py module
     8.1 set "app.config.from_object(Config)" after the "app" instance
 
@@ -238,7 +238,7 @@ Flow of database changes:
 35. Inside __init.py__ create after _login = LoginManager(app)_
     35.1 create `login.login_view = 'login'`
     35.1 The 'login' value above is the function (or endpoint) name for the login view.
-           In other words, the name we would use in a `url_for()` call to get the URL.
+         In other words, the name we would use in a `url_for()` call to get the URL.
 
 36. Inside `login` view, after *login_user* is done
     36.1 Obtain the `next_page` variable from `request.args.get('next')`
@@ -311,3 +311,17 @@ ________
 47. Inside _user.html_ change the header
     47.1 Wrap the header within a <table>, which has <tr> consisting of <td>s
     47.2 To add the gravatar to individual posts, you also wrap the posts inside <table>, <tr>, <td>
+
+48. We create *_posts.html*, which is a sub-template and put our post in it as a table from the step 47
+    48.1 We will reference it in the *user.html* using the `{% include "_posts.html" %}` clause
+    48.2 The _ prefix is just a naming convention to help us recognize which template files are sub-templates.
+________
+
+49. Inside the **User** class, we add two columns
+    49.1 `about_me` so users can add descriptions to their profile
+    49.2 `last_seen`, to show when the user was on the site last time
+
+50. Every time the database is modified it is necessary to generate a database migration.
+    50.1 We do _flask db migrate -m "comment"_ to migrate
+    50.2 Then _flask db upgrade_ to apply the changes to our `app.db`
+    50.3 Any users that were in the database are still there, the migration framework surgically applies the changes in the migration script without destroying any data.
