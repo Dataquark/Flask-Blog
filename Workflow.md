@@ -1,5 +1,16 @@
 # Workflow
 
+**SET UP**
+- virtualenv, pip install libraries
+- app folder: __init.py__ - instantiate app, import routes
+- - templates folder: base, index html
+- microblog.py: import app
+- .flaskenv: FLASK_RUN, FLASK_ENV, FLASK_DEBUG
+- config.py: Config class
+- .gitignore: config.py, vscode settings, pycache, venv
+
+**Step by step**
+
 1. Create a directory
 2. Make a virtual environment
 3. Install libraries ( flask, python-dotenv, flask-wft... )
@@ -69,7 +80,7 @@ _______
 
 _______
 
-12. Inside _routes.py_
+12. Inside _routes.py_ create a new view function for login
     12.1 Import flash, redirect functions from flask
 
     12.2 Create if statement after form=LoginForm()
@@ -92,7 +103,6 @@ _______
 14. We will create an error message in login page, when invalid data or no data is passed. So inside _login.html_
     14.1 Inside <p> after each input field add for loop
         14.1.1 {% for error in form.username.errors%}
-
     14.2 Add <span> inside the *for loop*
         14.2.1 <span style="color:red">[{{error}}]<span>
         14.2.2 _errors_ are list, because validators (DataRequired()) can have more than one error
@@ -110,6 +120,8 @@ _______
 17. Inside _config.py_
     17.1 basedir = os.path.abspath(os.path.dirname(__file__))
     17.2 create SQLALCHEMY_DATABASE_URI variable with _or_ construction like in SECRET_KEY
+        17.2.1 Key name is "DATABASE_URI"
+        17.2.1 db used is sqlite - use string formatting with basedir (os.path.join)
     17.3 create SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 18. Inside __init__.py
@@ -127,10 +139,10 @@ _______
     19.1 Import db from app
 
     19.2 Create a **User** class, which inherits from **db.Model**
-        19.2.1 Create _id_ object instantiated from db.Column class. Type Integer, primary key true.
-        19.2.2 Create _username_ object instantiated from db.Column class. Type String(64), index true, unique true.
-        19.2.3 Create _email_ object instantiated from db.Column class. Type String(120), index true, unique true.
-        19.2.4 Create _password-hash_ object instantiated from db.Column class. Type String(128).
+        19.2.1 Create _id_ object instantiated from db.Column class. Type db.Integer, primary key true.
+        19.2.2 Create _username_ object instantiated from db.Column class. Type db.String(64), index true, unique true.
+        19.2.3 Create _email_ object instantiated from db.Column class. Type db.String(120), index true, unique true.
+        19.2.4 Create _password-hash_ object instantiated from db.Column class. Type db.String(128).
 
     19.3 Create __repr__ method
         19.3.1 It returns something meaningful (User: Mufasa for instance) when object is called
@@ -165,9 +177,9 @@ Flow of database changes:
 **READ THIS SECTION**
 
 24. Create **Post** class that will inherit from **db.Model**
-    24.1 Create _id_ object instantiated from db.Column class. Type Integer, primary key true.
-    24.2 Create _body_ object instantiated from db.Column class. Type String(140).
-    24.3 Create _timestamp_ object instantiated from db.Column class. Type DateTime, index true, default=datetime.utcnow
+    24.1 Create _id_ object instantiated from db.Column class. Type db.Integer, primary key true.
+    24.2 Create _body_ object instantiated from db.Column class. Type db.String(140).
+    24.3 Create _timestamp_ object instantiated from db.Column class. Type db.DateTime, index true, default=datetime.utcnow
     24.4 Create *user_id* object instantiated from db.Column class. Type Integer, db.ForeignKey("user.id")
         24.4.1 Note this "user" is reference to **User** class and its id column. It is unfortunate that db.Model accepts only
                lower case arguments.
@@ -227,6 +239,7 @@ Flow of database changes:
 
 33. Add `logout` function
     33.1 Log the user out and redirect to the main page
+    33.2 Do not forget the _app.route("/logout")_ decorator
 
 34. Inside the _base.html_, in the `header of the page`
     34.1 Add *if statements* using jinja templates
@@ -244,8 +257,8 @@ Flow of database changes:
     36.1 Obtain the `next_page` variable from `request.args.get('next')`
     36.2 You need to import _request_ from **flask** and *url_parse* from **werkzeug.urls**
     36.3 Create and _if_ statement after
-        36.3.1 Check if *next_page* is not empty or its *netloc* component is not empty
-        36.3.2 If any one of them is true, set the url for *next_page* to `index` view
+        36.3.1 Check if *next_page*or its *netloc* component is not empty: `not next_page or url_parse(next_page).netloc != ""`
+        36.3.2 If any one of them is true, set the url for variable *next_page* to `index` view
         36.3.3 Otherwise, it will remain the url you got before from `reqeust.args.get('next')`
         36.3.4 More on **netloc** is here: https://stackoverflow.com/questions/53992694/what-does-netloc-mean
 
@@ -274,24 +287,30 @@ _______
                 and if so, will raise and exception using *ValidationError*
         40.4.2 `validate_email(self, email)`, which will check if the email is unique, and if not,
                 it will raise a similar error
+        40.4.3 Query the User table with *filter_by(username=username.data).first()* and save to `user` variable
+        40.4.4 Same for email
 
 41. Create *register.html* inside __templates__ folder
     41.1 Put a form for `Registration` similar to _login.html_
     41.2 It will extend the `base.html` and be practically the same
+    41.3 After the login form, create a <p> with inviting new users to registration
 
 42. Inside _routes.py_ create a view for `Registration` with `register` function
     42.1 Import *RegistrationForm* and add after *LoginForm* in the imports
     42.2 from _app.models_ import **User**, which will be queried inside the `register` view
     42.3 The `register` function itself will be almost identical to `login` view, with minor differences
+        42.3.1 It will use *user.set_password(form.password.data)*
+        42.3.2 It will have `db.session.add` and `db.session.commit` to upload the user to db
 
 _______
 
-43. Inside _routes.py_ create a new view function, `user` which will be his/her **Profile page**
+43. Inside _routes.py_ create a new view function, `user(username)` which will be his/her **Profile page**
     43.1 `login_required` is needed
     43.2 This function will have dynamic url, which is that `<username>` in the string
         43.2.1 We can pass it as a query argument to retrieve the user
         43.2.2 *first_or_404()* is a method which gives 404 error if there is no user with that username
     43.3 It will also have list of fake posts
+        43.3.1 `"author":user, "body":"test post #1"`
     43.4 We will render a new template with user and posts
 
 44. Create a new _user.html_ file which extends _base.html_
@@ -301,16 +320,20 @@ _______
 45. Inside _base.html_ add a link to **Profile**
     45.1 We will write it inside the `else` clause, because it should be shown only if the user is logged in
     45.2 Because Profile will appear only for logged in users, we can use `current_user.username` inside *url_for*
+        45.2.1 `url_for('user', username=current_user.username)`
 
 ________
 
-46. **Gravatar**. Inside the _models.py_ add `avatar` function to **User** class
+46. **Gravatar**. Inside the _models.py_ add `avatar(email)` function to **User** class
     46.1 It will transform the user's email to `md5 hash`
+        46.1.1 `digest = md5(self.email.lower().encode("utf-8")).hexdigest()`
     46.2 We will return an Gravatar link with the hash and identicon, in case email does not exist in Gravatar
+        46.2.1 `f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"`
 
 47. Inside _user.html_ change the header
-    47.1 Wrap the header within a <table>, which has <tr> consisting of <td>s
-    47.2 To add the gravatar to individual posts, you also wrap the posts inside <table>, <tr>, <td>
+    47.1 Wrap the header within a <table>, which has <tr valign="top"> consisting of <td>s
+        47.1.1 <td> <img src="{{user.avatar(size=128)}}" alt="Gravatar image"> </td>
+    47.2 To add the gravatar to individual posts, you also wrap the posts inside <table>, <tr valign="top">, <td> without <p>
 
 48. We create *_posts.html*, which is a sub-template and put our post in it as a table from the step 47
     48.1 We will reference it in the *user.html* using the `{% include "_posts.html" %}` clause
@@ -318,8 +341,9 @@ ________
 ________
 
 49. Inside the **User** class, we add two columns
-    49.1 `about_me` so users can add descriptions to their profile
+    49.1 `about_me` so users can add descriptions to their profile. It is just a _db.String(140)_
     49.2 `last_seen`, to show when the user was on the site last time
+        49.2.1 `db.Column(db.DateTime, default=datetime.utcnow)`
 
 50. Every time the database is modified it is necessary to generate a database migration.
     50.1 We do _flask db migrate -m "comment"_ to migrate
@@ -328,33 +352,44 @@ ________
 
 51. In the _user.html_ we add two conditionals for `about_me` and `last_seen` views
     51.1 Because we only want them to be visible if they are set. 
+        51.1.1 `{% if user.about_me %} <p>{{user.about_me}}</p> {% endif %}`
     51.2 At this point these two new fields are empty for all users
 
 ________
 
 52. In the _routes.py_ file, we add a new `before_request` function
-    52.1 It will have an `@app.before_request` decorator
-    52.2 This decorator from Flask register the decorated function to be executed right before the view function.
-         This is extremely useful because now I can insert code that I want to execute before any view function in the application, and I can have it in a single place.
-    52.3 Why there is no db.session.add() before the commit, consider that when you reference current_user, Flask-Login 
+    52.1 We use this function to set `last_seen` of our *current_user* to `datetime.utcnow()`
+        52.1.1 We check if the user is authenticated, if so, set the last_seen, then `db.session.commit()`
+    52.2 It will have an `@app.before_request` decorator
+    52.2 This decorator from Flask registers the decorated function to be executed right before the view function.
+         This is extremely useful because now we can insert code that I want to execute before any view function in the application, and we can have it in a single place.
+    52.3 Why there is no `db.session.add()` before the commit, consider that when you reference current_user, Flask-Login 
          will invoke the user loader callback function, which will run a database query that will put the target user in the database session. So you can add the user again in this function, but it is not necessary because it is already there.
+
+    52.4 **So in a nutshell, this function is used to do something right before html pages are loaded or view functions are ran**
 ________
 
-53. in the _routes.py_ we create a new view function `edit_profile`
-    53.1 It will use the `EditFormProfile` class from _forms.py_
-        53.1.1 This class has three fields to be shown on the webpage, _username, about-me, submit_
-    53.2 If validate_on_submit() returns **True** I copy the data from the form into the user object and then write the  
+53. Create *edit_profile.html* file
+    53.1 It will show the `EditProfileForm` from _forms.py_ which you should create. More on the next point
+
+54. In the _routes.py_ we create a new view function `edit_profile`
+    54.1 It will use the `EditProfileForm` class from _forms.py_
+        54.1.1 This class has three fields to be shown on the webpage, _username, about-me, submit_
+    54.2 If validate_on_submit() returns **True** I copy the data from the form into the user object and then write the  
          object to the database.
-    53.3 In case it is **False**, it might be either because we get an initial `GET` request 
+    54.3 In case it is **False**, it might be either because we get an initial `GET` request 
          when the page is loaded for the first time, or `POST` but with some validation error
-         53.3.1 In case of initial `GET`, we need a reverse operation, **set the form data from current_user data**, 
+         54.3.1 In case of initial `GET`, we need a reverse operation, **set the form data from current_user data**, 
                 instead of setting the current_user from the form data. 
                 Because in the initial load, there will not be anything submitted by the user.
                 We check it by `request.method == "GET" `
-         53.3.2 In case we receive `POST` but with some validation errors, we do not want to write anything to the form 
+         54.3.2 In case we receive `POST` but with some validation errors, we do not want to write anything to the form 
                 fields, because those were already populated by WTForms.
                 That is why we do not have `else` clause - we just skip the `POST` with validation errors
-    53.3 We add a link to _Edit profile_ in the user template
-        53.3.1 Pay attention to the clever conditional to make sure that the Edit link appears when you are viewing your 
-               own profile, but not when you are viewing the profile of someone else
-               
+    54.3 We add a link to _Edit profile_ in the _user.html_ template
+        54.3.1 Inside the <table> <tr> <td> after <h1>
+        54.3.1 Pay attention to the clever conditional (if user == current_user) to make sure that the Edit link appears when you are viewing 
+               your own profile, but not when you are viewing the profile of someone else
+    54.4 **Always check your database if you have all the columns properly populated with data**
+
+________

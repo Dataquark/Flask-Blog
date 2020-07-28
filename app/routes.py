@@ -20,9 +20,9 @@ def before_request():
 @app.route("/index")
 @login_required  # step 37 in the workflow
 def index():
-    user = {"username": "Babalu"}
+    # user = {"username": "Babalu"}
     posts = [
-        {"author": {"username": "Mufasa"}, "body": "Mufasani man oldirganman"},
+        {"author": {"username": "Scar"}, "body": "Mufasani man oldirganman"},
         {"author": {"username": "Shrek"}, "body": "Shut up, you stupid donkey!"},
     ]
     return render_template("index.html", title="Home", posts=posts)  # read the step 39
@@ -50,7 +50,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         # Step 36 in the Workflow
         next_page = request.args.get("next")
-        if not next_page or url_parse(next_page) != "":
+        if not next_page or url_parse(next_page).netloc != "":
             next_page = url_for("index")
         return redirect(next_page)
     return render_template("login.html", title="Sign in", form=form)

@@ -11,3 +11,4 @@ migrations/__pycache__
 
 # local files
 config.py
+sql_tests.sql
