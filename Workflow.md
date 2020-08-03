@@ -402,3 +402,29 @@ ________
     55.4 Extend _base.html_, content is <h1> for error message, <p><a href='url for index'>Back</a></p>
     55.5 In the **__init__.py** import _errors_ after routes and models
     55.6 Set the FLASK_DEBUG = 0 to test it
+
+________
+
+**Email configurations**
+56. In the _config.py_, create the following variables
+    56.1 `MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USERNAME, MAIL_PASSWORD, ADMINS`
+    56.2 Values for these variables come from `.flaskenv` with the same names
+        56.2.1 Except for `admins`, which is the adress where we want to receive the emails
+    56.3 We set the env variables for each of those variables in _.flaskenv_
+        56.3.1 `stmp.rambler.ru`, `467`, `True`, `tsueid@rambler.ru`, `password`
+
+57. In the *__init__.py* import `logging` and _SMTPHandler_ from `logging.handlers`
+    57.1 If app is not in a debug mode, 
+    57.2 If we have the mail server set (which we did)
+    57.3 We set the auth to None, but it might change
+    57.4 We check if we set username and password, which we did
+    57.5 So instead of None, we give username and password to auth
+    57.6 So far secure=None
+    57.7 However, if we are forcing the handler to user TLS, which we are
+    57.8 Set the security to empty tuple to use TLS without certificate or key
+    57.9 Create *mail_handler* variable as `SMTPHandler` instance
+    57.10 Give it all the named variables it requires
+        57.10.1 _fromaddr_ should be the same email address (_tsueid@rambler.ru_)
+    57.11 We only want the logs that are errors, not debug or warnings - *mail_handler.setlevel(logging.ERROR)*
+    57.12 Pass the *mail_handler* to app logger - `app.loggin.addHandler(mail_handler)`
+    
