@@ -393,3 +393,12 @@ ________
     54.4 **Always check your database if you have all the columns properly populated with data**
 
 ________
+
+**Bug: Duplicate username change in the edit profile**
+55. Create _errors.py_ in the app directory
+    55.1 Import *render_template* from flask, and *app, db* from app
+    55.2 Creat two functions `not_found_error(404)` and `internal_error(500)` with *@app.errorhandler(404 or 500)* as decorator
+    55.3 They return respective templates `404.html` and `500.html` which are to be created in *templates*
+    55.4 Extend _base.html_, content is <h1> for error message, <p><a href='url for index'>Back</a></p>
+    55.5 In the **__init__.py** import _errors_ after routes and models
+    55.6 Set the FLASK_DEBUG = 0 to test it

@@ -16,5 +16,6 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = "login"  # Step 35 in the Workflow
 
-from app import routes, models  # models are added in step 18.4 of Workflow.md
+from app import routes, models, errors  
+# models are added in step 18.4 of Workflow.md
 
