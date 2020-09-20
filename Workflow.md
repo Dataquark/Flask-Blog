@@ -391,7 +391,6 @@ ________
         54.3.1 Pay attention to the clever conditional (if user == current_user) to make sure that the Edit link appears when you are viewing 
                your own profile, but not when you are viewing the profile of someone else
     54.4 **Always check your database if you have all the columns properly populated with data**
-
 ________
 
 **Bug: Duplicate username change in the edit profile**
@@ -402,7 +401,6 @@ ________
     55.4 Extend _base.html_, content is <h1> for error message, <p><a href='url for index'>Back</a></p>
     55.5 In the **__init__.py** import _errors_ after routes and models
     55.6 Set the FLASK_DEBUG = 0 to test it
-
 ________
 
 **Email configurations**
@@ -426,5 +424,36 @@ ________
     57.10 Give it all the named variables it requires
         57.10.1 _fromaddr_ should be the same email address (_tsueid@rambler.ru_)
     57.11 We only want the logs that are errors, not debug or warnings - *mail_handler.setlevel(logging.ERROR)*
-    57.12 Pass the *mail_handler* to app logger - `app.loggin.addHandler(mail_handler)`
-    
+    57.12 Pass the *mail_handler* to app logger - `app.logger.addHandler(mail_handler)`
+________
+
+**Error logging**
+58. In the *__init__.py* add _RotatingFileHandler_ to the import of `logging.handlers`
+    58.1 Import `os` too
+
+59. Inside the `if` clause (`if not app.debug`), after *mail_handler* is added to `app.logger.addHandler`
+    59.1 If the path `logs` does not exist, create a directory `logs`
+    59.2 Create *file_handler* variable, which is an instance from `RotatingFileHandler`
+        59.2.1 It will have three arguments: `"logs/microblog.log", maxBytes=10240, backupCount=10`
+    59.3 Set the formatter on the file_handler
+        59.3.1 `logging.Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")`
+    59.4 Set the file_handler level to _logging.INFO_
+    59.5 add the *file_handler* to the logger: `app.logger.addHandler(file_handler)`
+    59.6 Set the logging level to INFO on app level too `app.logger.setLevel(logging.INFO)`
+    59.7 `app.logger.info("Microblog startup")`
+________
+
+**Fixing the duplicate username bug**
+60. In the _forms.py_, `EditProfileForm` class, create an `__init__` method
+    60.1 It will accept `self, original_username, *args **kwargs`
+    60.2 We will pass the _*args, **kwargs_ to its parent class
+        60.2.1 `super(EditProfileForm, self).__init__(*args, **kwargs)`
+        60.2.2 create an instance variable with original username: `self.original_username = original_username`
+    60.3 Create *validate_username(self, username)* method
+        60.3.1 we check if the new entered name is not equal to what we have in db
+        60.3.2 if so, we check if the new entered name exist in db by querying the User
+        60.3.3 if new chosen name is the same as in our db, we raise an error
+            60.3.3.1 `raise ValidationError('Please use a different username.')` 
+
+61. In the _routes.py_ modify the `edit_profile` form
+    61.1 `form = EditProfileForm(current_user.username)`, because of that `__init__` method of `EditProfileForm` class

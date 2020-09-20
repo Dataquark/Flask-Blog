@@ -40,3 +40,18 @@ class EditProfileForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     about_me = TextAreaField("About me", validators=[Length(min=0, max=140)])
     submit = SubmitField("Submit")
+
+    def __init__(self, original_username, *args, **kwargs):
+        # we are passing the args, kwargs of this class to its parent class
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs) in Python 3
+        self.original_username = original_username
+
+    def validate_username(self, username):
+        # we check if the new entered name is not equal to what we have in db
+        if username.data != self.original_username:
+            # if so, we check if the new entered name exist in db
+            user = User.query.filter_by(username=self.username.data).first()
+            if user is not None:
+                # if new chosen name is the same as in our db, we raise an error
+                raise ValidationError("Username taken! Please use different one!")

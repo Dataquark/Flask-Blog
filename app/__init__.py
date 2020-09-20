@@ -5,7 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 import logging
-from logging.handlers import SMTPHandler
+from logging.handlers import SMTPHandler, RotatingFileHandler
+import os
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -53,3 +54,27 @@ if not app.debug:
         # we only want the logs that are errors, not debug or warnings
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
+
+    # if the path logs does not exist
+    if not os.path.exists("logs"):
+        # create a directory, otherwise move on
+        os.mkdir("logs")
+    # loggins files handler that will be passed to app.logger.addHandler
+    # Giving max size of the file, and keeping max 10 files in the directory
+    file_handler = RotatingFileHandler(
+        "logs/microblog.log", maxBytes=10240, backupCount=10
+    )
+    # message in the files: timestamp, logging level, message, source file, line num
+    # uses a special format provided via logging.Formatter
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+        )
+    )
+    # files will have only INFO level logs
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+
+    # lowering the app logger level to INFO too
+    app.logger.setLevel(logging.INFO)
+    app.logger.info("Microblog startup")
