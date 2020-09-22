@@ -147,6 +147,7 @@ _______
     19.3 Create __repr__ method
         19.3.1 It returns something meaningful (User: Mufasa for instance) when object is called
 
+**WORKING WITH DATABASES**
 20. Do _flask db init_
     20.1 It will initialize db and create migrations folder
 
@@ -165,7 +166,7 @@ _______
 
 23. Do _flask db upgrade_
 
-**IMPORTANT**
+**DB MIGRATION**
 Flow of database changes:
     1. change the model (add new tables, remove, change the schema and so on)
     2. _flask db migrate -m "comments"_ to create a new migration script
@@ -457,3 +458,34 @@ ________
 
 61. In the _routes.py_ modify the `edit_profile` form
     61.1 `form = EditProfileForm(current_user.username)`, because of that `__init__` method of `EditProfileForm` class
+________
+
+**FOLLOWERS** - [Link](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-viii-followers)
+
+> We have to create _many-to-many_ relationship between follower users and followed user.
+> Because both users live in the `User` table, we will have to self connect it to itself.
+> A relationship in which instances of a class are linked to other instances of the same class 
+> is called a _self-referential relationship_, which we will implement using an association table.
+
+62. In the _models.py_ create a `db.Table` named _followers_, which is an **association table** for **many-to-many**
+    62.1 It will have three arguments: name of the table (`followers`), and two columns
+    62.2 Two columns are:
+            `db.Column("follower_id, db.Integer, db.ForeignKey(user.id))`
+            `db.Column("followed_id, db.Integer, db.ForeignKey(user.id))`
+
+63. Inside the `User` class, create a `db.relationship` named _followed_
+    63.1 `'User'` is the right side entity of the relationship (the left side entity is the parent class). 
+        Since this is a self-referential relationship, we have to use the same class on both sides.
+    63.2 `secondary=followers` configures the association table (step 62) that is used for this relationship.
+    63.3 `primaryjoin=(followers.c.follower_id == id)` links the left side (the follower user) with the association table. 
+        63.3.1 *followers.c.follower_id* references the *follower_id* column of the association table.
+        63.3.2 `c` is an attribute of SQLAlchemy tables not defined as models. For them, columns are exposed as sub-attributes of "c".
+    63.4 `secondaryjoin=(followers.c.followed_id == id)` links the **right** side (the followed user) with the association table. 
+    63.5 `backref=db.backref('followers', lazy='dynamic')` defines how this relationship will be accessed from the right side entity. 
+        From the left side, the relationship is named followed, so from the right side we use the name followers to represent all the left side users that are linked to the target user in the right side. The additional *lazy* argument indicates the execution mode for this query. A mode of *dynamic* sets up the _query to not run until specifically requested_.
+    63.5 `lazy='dynamic'` is similar to the parameter in the backref, but this one applies to the left side query instead of the right side.
+
+64. Do `flask db migrate -m "followers association table"`
+    64.1 Do `flask db upgrade`
+    64.2 Push to git
+    

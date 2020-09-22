@@ -1,11 +1,18 @@
 from datetime import datetime
 from hashlib import md5
 
-from flask_login import UserMixin  # step 29 in Workflow
+# step 29 in Workflow
+from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app import db  # db is in __init__.py
-from app import login
+from app import db, login  # db is in __init__.py
+
+# Workflow step 62
+followers = db.Table(
+    "followers",
+    db.Column("follower_id", db.Integer, db.ForeignKey("user.id")),
+    db.Column("followed_id", db.Integer, db.ForeignKey("user.id")),
+)
 
 
 class User(UserMixin, db.Model):
@@ -34,6 +41,16 @@ class User(UserMixin, db.Model):
     def avatar(self, size):
         digest = md5(self.email.lower().encode("utf-8")).hexdigest()
         return f"https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
+
+    # Workflow step 63
+    followed = db.relationship(
+        "User",
+        secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref("followers", lazy="dynamic"),
+        lazy="dynamic",
+    )
 
 
 class Post(db.Model):
