@@ -532,4 +532,9 @@ ________
 ________
 
 **UNIT TESTING THE USER MODEL**
-68. 
+68. Create _tests.py_ in the main directory
+*Tests are self explanatory. No need to write down what they do*
+    68.1 from datetime import datetime, timedelta
+    68.2 import unittest
+    68.3 from app import app, db
+    68.4 from app.models import User, Post
