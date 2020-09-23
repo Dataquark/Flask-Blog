@@ -461,7 +461,6 @@ ________
 ________
 
 **FOLLOWERS** - [Link](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-viii-followers)
-
 > We have to create _many-to-many_ relationship between follower users and followed user.
 > Because both users live in the `User` table, we will have to self connect it to itself.
 > A relationship in which instances of a class are linked to other instances of the same class 
@@ -489,3 +488,48 @@ ________
     64.1 Do `flask db upgrade`
     64.2 Push to git
     
+65. Thanks to the SQLAlchemy, a user following other user can be recorded in the db working with the _followed_ relationship as a list.
+    65.1 So, we do `user1.followed.append(user2)`, which will put the _user1_ in `follower_id` and _user2_ in `followed_id` columns
+    65.2 Same works for `user1.followed.remove(user2)`
+
+66. In the `User` class, add three methods
+    66.1 _follow_, which has `self` and `user` arguments, it checks if *self* is _not already following_ (`is_following` method) the *user*
+        66.1.1 If so, `self.followed.append(user)`
+    66.2 _unfollow_, which accepts `self` and `user` argument, it check if *self* is _already following_ the *user* (`is_following`)
+        66.2.1 If so, `self.followed.remove(user)`
+    66.3 *is_following* a helper method to check if `self` is already following the `user`
+        66.3 It returns `True` or `False`
+        66.4 To achieve it we will query the _followed_ table from the point of _self_ - `self.followed.filter()`
+            66.4.1 _filter_ condition is `followers.c.followed_id == user.id`: take the followed_id from followers table
+            66.4.2 and check if any of them equal to user.id
+        66.5 This query can return either 0 or 1, because either self will have a counterpart (in the next column) user.id or not
+        66.6 So, the whole clause is `return self.followed.filter(followers.c.followed_id == user.id).count() > 0`
+
+67. We need a query to obtain all the posts from followed users, AND our own posts
+    67.1 _SQL query_ is as follows
+        ```
+        SELECT 
+            post.user_id,
+            post.body
+        FROM post JOIN followers
+        ON post.user_id = followers.followed_id
+        WHERE followers.follower_id = 1
+        UNION
+        SELECT
+            post.user_id,
+            post.body
+        FROM post
+        WHERE post.user_id = 1
+        ORDER BY post.timestamp DESC;
+        ```
+    67.2 Corresponding _Python code_ added in the `User` class is such
+        ```
+        def followed_posts(self):
+            followed_ones = Post.query.join(followers, (followers.c.followed_id == Post.user_id)).filter(followers.c.follower_id == self.id)
+            own_posts = Post.query.filter_by(user_id=self.id)
+            return followed_ones.union(own_posts).order_by(Post.timestamp.desc())
+        ```
+________
+
+**UNIT TESTING THE USER MODEL**
+68. 
