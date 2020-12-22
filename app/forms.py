@@ -55,3 +55,8 @@ class EditProfileForm(FlaskForm):
             if user is not None:
                 # if new chosen name is the same as in our db, we raise an error
                 raise ValidationError("Username taken! Please use different one!")
+
+
+# Follow and unfollowing actions, step 69
+class EmptyForm(FlaskForm):
+    submit = SubmitField("Submit")

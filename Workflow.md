@@ -538,3 +538,46 @@ ________
     68.2 import unittest
     68.3 from app import app, db
     68.4 from app.models import User, Post
+
+**FOLLOW, UNFOLLOW FUNCTIONALITY**
+69. Inside _forms.py_ create a form (`EmptyForm(FlaskForm)`)
+    69.1 which will have just one `submit` button
+
+70. Inside _routes.py_ create two routes
+    70.1 one for following (`app.route('/follow/<username>')`)
+    70.2 one for unfollowing (`app.route('/unfollow/<username>')`)
+    70.3 both will have `methods=["POST"]`
+    70.4 both will have `@login_required`
+    70.5 both functions will accept _username_ as an argument
+
+71. Create an instance of the _EmptyForm_
+        70.1 if it passes the validations, query the _User_ by the _username_ and save in `user` variable
+            70.1.1 check if the `user` is None, flash a message if yes and redirect to _index_
+            70.1.2 if it is not None, check if `user==current_user` 
+                70.1.2.1 flash a message is yes and redirect to _user_ route (page)
+            70.1.3 If both conditions are passes, add the `user` to *current_user's* followers
+                70.1.3.1 `current_user.follow(user)`
+                70.1.3.2 `db.commit.session()` - save the changes to the database
+                70.1.3.3 flash a message and redirect to _user_ route (page)
+        70.2 if it does not pass the validations, redirect to _index_
+        70.3 **unfollow route will be identical**
+
+72. To add this submit button to the _user_ route (page)
+    72.1 inside the _user_ route, instantiate _EmptyForm_
+        72.1.1 `form = EmptyForm()`
+    72.2 and pass the form into the `render_template` functions
+        72.2.1 `return render_template("user.html", user=user, posts=posts, form=form)`
+
+73. Inside the _user.html_
+    73.1 add <p> paragraph after the `Last seen on:`
+        73.1.1 show how many followers the user has and how many he/she is following
+        73.1.2 `{{user.followers.count()}}` to access the followers' count
+        73.1.3 `{{user.followed.count() }}` to access the followed count
+    73.2 add two more conditionals to dynamically change the link on top the page
+        73.2.1 if the `user=current_user` then the link is _Edit Profile_, we already have it in the step 53
+        73.2.2 elif `not current_user.is_following(user)` then create a paragraph
+            73.2.1.1 this paragraph will have a form with hidden tag and submit button from _EmptyForm_
+            73.2.1.2 form action is `action="{{ url_for('follow', username=user.username) }}"` and `method="POST"`
+            73.2.1.2 `form.submit(value="Follow")` after the hidden tag
+        73.2.3 else, then create another paragraph, identical to the previous
+            73.2.3.1 but `form.submit(value="Unfollow")` after the hidden tag

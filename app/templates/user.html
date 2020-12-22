@@ -15,22 +15,42 @@
 
             <!--Step 51 in the Workflow-->
             {% if user.about_me %}
-            <p>
-                {{ user.about_me}}
-            </p>
+                <p>
+                    {{ user.about_me}}
+                </p>
             {% endif %}
 
             {% if user.last_seen %}
-            <p>
-                Last seen on: {{user.last_seen}}
-            </p>
+                <p>
+                    Last seen on: {{user.last_seen}}
+                </p>
             {% endif %}
+
+            <!--Step 69-73 in the Workflow-->
+            <p>
+                {{ user.followers.count()}} followers, {{user.followed.count()}} following.
+            </p>
 
             <!--Step 53 in the Workflow-->
             {% if user == current_user %}
-            <p>
-                <a href="{{ url_for('edit_profile') }}">Edit Profile</a>
-            </p>
+                <p>
+                    <a href="{{ url_for('edit_profile') }}">Edit Profile</a>
+                </p>
+            <!-- Step 69-73 in the Worflow -->
+            {% elif not current_user.is_following(user) %}
+                <p>
+                    <form action="{{ url_for('follow', username=user.username) }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        {{ form.submit(value='Follow') }}
+                    </form>
+                </p>
+            {% else %}
+                <p>
+                    <form action="{{ url_for('unfollow', username=user.username) }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        {{ form.submit(value='Unfollow') }}
+                    </form>
+                </p>
             {% endif %}
         </td>
     </tr>
