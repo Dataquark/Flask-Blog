@@ -581,3 +581,63 @@ ________
             73.2.1.2 `form.submit(value="Follow")` after the hidden tag
         73.2.3 else, then create another paragraph, identical to the previous
             73.2.3.1 but `form.submit(value="Unfollow")` after the hidden tag
+________
+
+**TEXTING AREA TO THE MAIN PAGE**
+74. Inside _forms.py_
+    74.1 create `class PostForm(FlaskForm)`
+        74.1.1 it will have `post` variable with _TextFieldArea_
+            74.1.1.1 data validators are _DataRequired()_ and _Length(min=1, max=140)_
+        74.1.2 and `submit` variable with _SubmitField('Submit')_
+
+75. Pass the _PostForm_ to the `index` route inside _routes.py_
+    75.1 import the form on top (and Post class alongside User class)
+    75.2 add `methods=['GET', 'POST']` to the _app.route()_ decorators
+    75.3 instantiate a form
+    75.4 `if form.validate_on_submit()`
+        75.4.1 create `post = Post(body=form.post.data, author=current_user)`
+        75.4.2 add the _post_ to the db
+        75.4.3 commit the session
+        75.4.4 flash a message
+        75.4.5 redirect to the `index` route
+            75.5.5.1 **This is called POST/redirect/GET pattern**
+        75.4.6 replace the _posts_ variable which had fake posts before
+            75.4.6.1 with `posts = current_user.followed_posts().all()`
+    75.5 add the _form_ to the *render_template*
+
+76. Inside the _index.html_
+    76.1 add a <form> after the <h1> tag
+    76.1 which will have a hidden_tag as usual
+    76.2 and uses the _form_ from the `index` route
+        76.2.1 by having two fields (text area and submit) inside <p> tags
+        76.2.2 do not forget to display the errors (as <span>) after text area inside jinja for loop
+
+77. Inside _routes.py_
+    77.1 create an `explore` route
+    77.2 login is required
+    77.3 query all the posts (order by timestamp) into a variable
+        77.3.1 `posts = Post.query.order_by(Post.timestamp.desc()).all()`
+    77.4 `render_template('index.html', title='Explore', posts=posts)`
+        77.4.1 **pay attention that we are reusing the _index.html_ when rendering**
+        77.4.2 because explore page will be similar to the main page
+
+78. Inside _base.html_
+    78.1 add <a> ref to the `explore` page after the _Main Page_
+        78.1.1 use `url_for('user', username=post.author.username)` as _href_
+
+79. Inside *_posts.html*
+    79.1 change the {{user.avatar(36)}} to {{post.author.avatar(36)}}
+    79.2 wrap the {{post.author.username}} in the second <td> with <a> tag
+        79.2.1 _href_ is `url_for('user', username=post.author.username)`
+
+80. Inside the _index.html_
+    80.1 wrap the form the step 76 with a jinja if
+        80.1.1 `{% if form %} form from step 76 {% endif %}`
+    80.2 **this allows us to reuse the _index.html_ in both Main Page and in Explore page**
+        80.2.1 this if condition allows us to skip the _form_ in the *Explore* page
+
+81. In the same file, change the for loop for posts
+    81.1 Instead of the <div> with <p> tags
+    81.2 just do `{% include '_posts.html' %}`
+    81.3 **both Main page and Explore pages now use the same html file**
+    
