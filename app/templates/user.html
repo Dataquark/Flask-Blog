@@ -60,9 +60,23 @@
 
 {% for post in posts %}
 
-<!--Step 48 in the Workflow-->
-{% include "_posts.html" %}
+    <!--Step 48 in the Workflow-->
+    {% include "_posts.html" %}
 
 {% endfor %}
+
+<!-- step 88 in the Workflow -->
+{% if prev_url %}
+    <a href="{{ prev_url }}">
+        Newer posts
+    </a>    
+{% endif %}
+
+<!-- step 88 in the Workflow -->
+{% if next_url %}
+    <a href="{{ next_url }}">
+        Older posts
+    </a>    
+{% endif %}
 
 {% endblock %}

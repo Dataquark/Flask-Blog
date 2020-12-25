@@ -640,4 +640,82 @@ ________
     81.1 Instead of the <div> with <p> tags
     81.2 just do `{% include '_posts.html' %}`
     81.3 **both Main page and Explore pages now use the same html file**
-    
+________
+
+**PAGINATION**
+82. Inside _config.py_ set `POSTS_PER_PAGE=3` which later will be changed to `25`
+
+83. Inside _routes.py_ file, modify the `index` and `explore` routes
+    83.1 add `page` variable to both, which is equal to `requests.args.get('page', 1, type=int)`
+        83.1.1 it means that from the _url_ in search bar, get the `page` query parameter
+        83.1.2 if it does not exist, then the default is `1`
+    83.2 change the `posts` variable in both functions
+        83.2.1 instead of `.all()` use `.paginate(page, app.config['POSTS_PER_PAGE'], False)`
+            83.2.1.1 `page` argument is our variable from the previous step
+        83.2.2 `.paginate(start, end, error_flag)` is offered by Flask
+            83.2.2.1 if *error_flag* is set to _True_, it returns `404` if the current number is out of range
+            83.2.2.2 if it is set to _False_ (which we did), it returns an empty list in case of out of range
+    83.3 set the _posts_ in the *render_tempate* to `posts.items`
+        83.3.1 because previous _paginate_ function returns a _Paginate_ object
+        83.3.2 which offers `items` attribute, which in our case is a list of posts from db
+
+84. This _Paginate_ object also has another _4 attributes_
+    84.1 
+        ```
+            has_next: True if there is at least one more page after the current one
+            has_prev: True if there is at least one more page before the current one
+            next_num: page number for the next page
+            prev_num: page number for the previous page
+        ```        
+
+85. Inside the _routes.py_ modify `index` and `explore` routes
+    85.1 add `next_url` and `prev_url` variables to both of them
+        85.1.1 we use *ternary conditional* for it
+    85.2 they are set to 
+        `url_for('index', page=posts.next_num) if posts.has_next else None`
+        `url_for('index', page=posts.prev_num) if posts.has_prev else None`
+        for _index_ route
+    85.3 and 
+        `url_for('explore', page=posts.next_num) if posts.has_next else None`
+        `url_for('explore', page=posts.prev_num) if posts.has_prev else None`
+        for _explore_ route
+    85.4 pass both variables to the *render_template* function
+
+86. In he _index.html_ add jinja if statements for `prev_url` and `next_url` variables
+    86.1
+        ```
+            {% if prev_url %}
+                <a href="{{ prev_url }}">
+                    Newer posts
+                </a>    
+            {% endif %}
+        ```
+        for new posts
+    86.2
+        ```
+            {% if next_url %}
+                <a href="{{ next_url }}">
+                    Older posts
+                </a>    
+            {% endif %}
+        ```
+        for older posts
+
+87. Inside the _routes.py_ modify the `user` routes, delete the fake data
+    87.1 add `page`, `posts`, `next_url`, `prev_url` variables similar to previous steps
+        87.1.1 `url_for` for the next and prev urls should have an extra `username=user.username` argument
+        87.1.2 it is to make sure that we are redirecting the click to the same page (user's page)
+    87.2 `posts` variable is queried from the existing `user` variable
+        87.2.1 `posts=user.posts.order_by(...).paginate(...)`
+        87.2.2 _User_ model has _posts_ attribute which is a _db.relationship_
+            87.2.2.1 SQLAlchemy already set it up as a query, so we can immediately use `order_by` on it
+            87.2.2.2 alternative would be query the _Post_ model with _author_ backref being the `user`
+    87.3 pass all the new variables to *render_template* functions
+        87.3.1 do not forget `posts` is now a _Pagination_ object
+
+88. Inside the _user.html_ add jinja if statements for *next_url* and *prev_url*
+    88.1 They are the same from the _index.html_
+
+89. Inside _config.py_
+    89.1 change the `POSTS_PER_PAGE` to `25`
+________
