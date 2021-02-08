@@ -719,3 +719,120 @@ ________
 89. Inside _config.py_
     89.1 change the `POSTS_PER_PAGE` to `25`
 ________
+
+**SENDING EMAILS FOR PASSWORD RESET**
+
+90. Install flask-mail, pyjwt packages from pip
+    90.1 import Mail from flask_mail in the *__init.py__* file
+    90.2 initiate Mail instance there as `mail = Mail(app)`
+
+91. In the _app_ folder, create a _email.py_ file
+    91.1 from flask_mail import Message
+    92.2 from _app_ import `mail`
+    92.3 create `send_email(subject, sender, recipients, text_body, html_body)` function
+        92.3.1 msg = Message(subject=subject, sender=sender, recipients=recipients)
+        92.3.2 msg.text = text_body
+        92.3.3 msg.body = html_body
+        92.3.4 mail.send(msg)
+    92.4 create `send_password_reset_email(user)` function after
+        92.4.1 _pass_ so far
+
+92. In the _login.html_ add another <p>
+    92.1 
+    ```
+        <p>
+            Forgot password?
+            <a href="{{ url_for('reset_password_request') }}">
+                Click to reset it!
+            </a>
+        </p>
+    ```
+
+93. In the _forms.py_ add `RequestPasswordResetForm` class
+    93.1 it will have `email` as StringField with the related validators
+    93.2 and `submit` button as a SubmitField
+
+94. In the _routes.py_ create another route for password reset
+    Import the class from 93th step, and *from app.email import send_password_reset_email*
+    94.1 `@app.route("/reset_password_request", methods=["GET", "POST"])`
+    94.2 if the current user is authentcated then redirect to index
+    94.3 query the User by email
+    94.4 if `user` exist then `send_password_reset_email(user)`
+    94.5 flash a message that instructions were sent
+    94.6 redirect to login page
+    94.7 render *reset_password_request.html* with title and form
+
+95. In the _templates_ create *reset_password_request.html*
+    95.1 extends base
+    95.2 inside the block is <h1> and <form> with post method, no action
+        95.2.1 don't forget the hidden tag
+        95.2.2 two <p>s: one for email and one for submit button
+        95.2.3 jinja for for errors (inside span) in the email paragraph
+    *Similar to login or register forms*
+
+96. In the _models.py_ import app from app, import time from time and import jwt
+    96.1 create two methods in the `User` class `get_reset_password(self, expires_in=600)` and `verify_reset_password(token)`
+    96.2 the first one returns `jwt.encode()`
+        96.2.1 payload is `{'reset_password':self.id, 'exp':time() + expires_in}`
+        96.2.2 secret key is loaded from `app.config`
+        96.2.3 algorithm is 'HS256'
+    96.3 the latter is _@staticmethod_ and returns `User.query.get(id)`
+        96.3.1 `id` is set in a _try...except_ block
+        96.3.1 try `jwt.decode(token, secret-key from app.config, algorithms=['HS256'])['reset_password]`
+        96.3.2 expect is just a return nothing
+
+97. Inside the _template_ folder create _email_ folder
+    97.1 add `reset_password.txt` and `reset_password.html` files there
+    97.2 they will use _jinja_ templates for user and generated url
+        97.2.1 generated url will point towards `reset_password` route, which are created in the step 100
+    97.3 otherwise, they are fairly simple
+    97.4 __When _external=True is passed as an argument, complete URLs are generated__
+
+98. Inside the _email.py_ file finish the `send_password_reset_email(user)` function
+    98.1 create a token variable which is set to `user.get_reset_password`
+    98.2 then use the `send_mail` generic function
+        98.2.1 give a subject
+        98.2.2 sender is `ADMINS` from the _app.config_
+        98.2.3 recipient is _user.email_
+        98.2.4 text_body is `render_template('email/reset_password.txt', user=user, token=token)`
+        98.2.5 html_body is `render_template('email/reset_password.html', user=user, token=token)`
+            98.2.5.1 __that is why we used jinja inside both txt and html files__
+
+99. Inside the _forms.py_ create `ResetPasswordForm` class
+    99.1 it will have three fields `password`, `confirm_password` and `submit`
+    99.2 don't forget the validators, especially `EqualTo()` for the second field
+
+100. Inside the _routes.py_ import the `ResetPasswordForm`
+    100.1 create `reset_password` route with GET, POST methods
+    100.2 function will accept `token` and query parameter is `reset_password/<token>`
+    100.3 if the current user is authenticated then redirect to index
+    100.4 `user = User.verify_reset_password(token)` static method to check
+    100.5 if user is nothing then redirect to index
+    100.6 instantiate the form from 99
+    100.7 if validate on submit is true
+        100.7.1 then `user.set_password(form.password.data)`
+        100.7.2 then `db.session.commit()`
+        100.7.3 then flash a message
+        100.7.4 then redirect to login
+    100.8 function returns a `render_template('reset_password.html' form=form)` from step 101
+
+101. Inside the _template_ folder create `reset_password.html`
+    __It is different from the html with the same name inside the EMAIL folder__
+    101.1 extends _base.html_
+    101.2 content is <h1>
+    101.3 then a form with POST method
+    101.4 _don't forget the hidden tag_
+    101.5 three <p> paragraphs
+    101.6 for each field from the `ResetPasswordForm` and their labels, password size is 32
+    101.7 jinja for loop for password field errors and errors are in <span>
+
+**CHANGE THE MAIL_PORT TO 587 IN ORDER TO FLASK_MAIL TO WORK**
+
+102. In the _email.py_ create `send_async_email(app, msg)` function
+    102.1   ```
+            with app.context():
+                mail.send(msg)
+            ```
+    102.2 `from threading import Thread`
+    102.3 instead of `mail.send(msg)` in the *send_email* generic function
+        102.3.1 it uses Thread `Thread(target=send_async_email, args=(app, msg)).start()`
