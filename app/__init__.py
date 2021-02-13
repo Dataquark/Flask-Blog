@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_bootstrap import Bootstrap
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -23,6 +24,9 @@ login.login_view = "login"  # Step 35 in the Workflow
 
 # step 90 in the Workflow
 mail = Mail(app)
+
+# step 103 in the workflow
+bootstrap = Bootstrap(app)
 
 # models are added in step 18.4 of Workflow.md
 from app import routes, models, errors
