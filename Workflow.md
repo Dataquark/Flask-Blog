@@ -836,3 +836,9 @@ ________
     102.2 `from threading import Thread`
     102.3 instead of `mail.send(msg)` in the *send_email* generic function
         102.3.1 it uses Thread `Thread(target=send_async_email, args=(app, msg)).start()`
+
+**FACELIFT WITH FLASK-BOOTSTRAP**
+
+103. pip install flask-bootstrap
+    103.1 in the *_init_.py* `from flask_bootstrap import Bootstrap`
+    103.2 `bootstrap = Bootstrap(app)`
