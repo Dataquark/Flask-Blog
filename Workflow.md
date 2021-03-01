@@ -839,6 +839,34 @@ ________
 
 **FACELIFT WITH FLASK-BOOTSTRAP**
 
-103. pip install flask-bootstrap
+103. Do `pip install flask-bootstrap`
     103.1 in the *_init_.py* `from flask_bootstrap import Bootstrap`
     103.2 `bootstrap = Bootstrap(app)`
+    _WE WILL HAVE TO COPY THE CODE FROM GITHUB AS IT IS LENGHTY TO EXPLAIN EACH CHANGE_
+    103.4 replace all the `.html` files with their bootstrap alternatives from github repo
+          Repo: https://github.com/miguelgrinberg/microblog/tree/v0.11
+
+**DATES AND TIMES**
+
+104. Do `pip install flask-moment`
+    104.1 inside the _init.py_ import `Moment from flask_moment`
+    104.2 instantiate an object from it, `moment = Moment(app)`
+
+105. All the templates must include `moment.js` library as a <script>
+    105.1 one way to achieve it to inlude the script in the _base.html_, as everything inherits from it
+
+106. In the _base.html_ include a `{% block scripts %} ... {% endblock %}` at the end
+    106.1 this is another block exported from _flask-bootstrap_ package, where JavaScript imports are to be included
+    106.2 This block is different from other ones in that it comes with some content predefined in the `bootstrap/base.html` template. 
+        All I want to do is add the _moment.js_ library, without losing the `bootstrap/base.html` contents. 
+        And this is achieved with the `super()` statement, which preserves the content from the `bootstrap/base.html` template. If you define a block in your template without using `super()`, then any content defined for this block in the `bootstrap/base.html ` template will be lost.
+    106.3 add `{{ moment.include_moment() }}` after `{{ super() }}` in the block to include the JS library
+
+107. In the _user.html_
+    107.1 replace the `{{ user.last_seen }}` with `{{ moment(user.last_seen).format('LLL') }}`
+    107.2 it will format the UTC data from the db into `Month DD, YYYY H:MM PM` format
+
+108. In the *_post.html*
+    108.1 change the `says:` to `says {{ moment(post.timestamp).fromNow() }}:`
+    108.2 it takes the post timestamp in UTC format and converts it into timestamp relative to current time
+        108.2.1 such as `7 hours ago` or `2 days ago`

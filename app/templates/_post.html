@@ -9,7 +9,8 @@
             <a href="{{ url_for('user', username=post.author.username) }}">
                 {{ post.author.username }}
             </a>
-            says:
+            <!-- step 108 in the workflow -->
+            says {{ moment(post.timestamp).fromNow() }}:
             <br>
             {{ post.body }}
         </td>

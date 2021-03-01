@@ -48,3 +48,9 @@
         {% block app_content %}{% endblock %}
     </div>
 {% endblock %}
+
+<!-- step 106 in the workflow -->
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment()}}
+{% endblock %}

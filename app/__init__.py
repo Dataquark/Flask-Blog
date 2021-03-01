@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_bootstrap import Bootstrap
+from flask_moment import Moment
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -27,6 +28,9 @@ mail = Mail(app)
 
 # step 103 in the workflow
 bootstrap = Bootstrap(app)
+
+# step 104 in the workflow
+moment = Moment(app)
 
 # models are added in step 18.4 of Workflow.md
 from app import routes, models, errors
